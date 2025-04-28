@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Pembentukan Hidrogel Poliakrilamida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            width: 48%;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 0 auto;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .property {
+            margin-bottom: 15px;
+        }
+        .property-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .property-value {
+            padding: 10px;
+            background-color: #e9f7fe;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .property-bar {
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 5px;
+            position: relative;
+        }
+        .property-fill {
+            height: 100%;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+        .references {
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .reference {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .hydrogel-display {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: all 1s ease-in-out;
+        }
+        .simulation-animation {
+            position: relative;
+            height: 300px;
+            margin: 30px auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #f0f8ff;
+        }
+        .molecule {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+        .acrylamide {
+            background-color: rgba(52, 152, 219, 0.7);
+            width: 10px;
+            height: 10px;
+        }
+        .mba {
+            background-color: rgba(231, 76, 60, 0.7);
+            width: 15px;
+            height: 15px;
+        }
+        .dmpa {
+            background-color: rgba(241, 196, 15, 0.7);
+            width: 12px;
+            height: 12px;
+        }
+        .uv-light {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 20px;
+            background-color: rgba(155, 89, 182, 0.5);
+            border-radius: 0 0 50% 50%;
+        }
+        .uv-beam {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 0;
+            background-color: rgba(155, 89, 182, 0.2);
+        }
+        .warning {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #fadbd8;
+            border-radius: 5px;
+            display: none;
+        }
+        .tab-container {
+            margin-top: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: none;
+            outline: none;
+            transition: 0.3s;
+        }
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        .tab-button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulasi Pembentukan Hidrogel Poliakrilamida dengan Iradiasi UV</h1>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="openTab(event, 'simulation')">Simulasi</button>
+                <button class="tab-button" onclick="openTab(event, 'theory')">Teori</button>
+                <button class="tab-button" onclick="openTab(event, 'references')">Referensi</button>
+            </div>
+            
+            <div id="simulation" class="tab-content active">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="acrylamide">Konsentrasi Akrilamida (AM) (% w/v)</label>
+                        <input type="range" id="acrylamide" min="5" max="40" value="15" step="1">
+                        <div class="value-display">
+                            <span>5%</span>
+                            <span id="acrylamide-value">15%</span>
+                            <span>40%</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="mba">Konsentrasi MBA (% w/w dari AM)</label>
+                        <input type="range" id="mba" min="0.1" max="5" value="1" step="0.1">
+                        <div class="value-display">
+                            <span>0.1%</span>
+                            <span id="mba-value">1%</span>
+                            <span>5%</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dmpa">Konsentrasi DMPA (% w/w dari AM)</label>
+                        <input type="range" id="dmpa" min="0.1" max="3" value="0.5" step="0.1">
+                        <div class="value-display">
+                            <span>0.1%</span>
+                            <span id="dmpa-value">0.5%</span>
+                            <span>3%</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="dmso">Persentase DMSO dalam pelarut (%)</label>
+                        <input type="range" id="dmso" min="0" max="100" value="20" step="5">
+                        <div class="value-display">
+                            <span>0%</span>
+                            <span id="dmso-value">20%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="uv-intensity">Intensitas UV (mW/cm²)</label>
+                        <input type="range" id="uv-intensity" min="1" max="30" value="10" step="1">
+                        <div class="value-display">
+                            <span>1 mW/cm²</span>
+                            <span id="uv-intensity-value">10 mW/cm²</span>
+                            <span>30 mW/cm²</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="uv-time">Waktu Iradiasi UV (menit)</label>
+                        <input type="range" id="uv-time" min="1" max="30" value="5" step="1">
+                        <div class="value-display">
+                            <span>1 min</span>
+                            <span id="uv-time-value">5 min</span>
+                            <span>30 min</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="simulate-btn">Simulasikan</button>
+                
+                <div class="warning" id="warning-message"></div>
+                
+                <div class="simulation-animation" id="animation-container">
+                    <div class="uv-light"></div>
+                    <div class="uv-beam" id="uv-beam"></div>
+                </div>
+                
+                <div class="hydrogel-display" id="hydrogel-visual" style="background-color: rgba(173, 216, 230, 0); box-shadow: none;"></div>
+                
+                <div class="result-section" id="result-section" style="display: none;">
+                    <h3>Hasil Simulasi:</h3>
+                    
+                    <div class="property">
+                        <div class="property-title">Status Pembentukan Hidrogel:</div>
+                        <div class="property-value" id="formation-status">-</div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="property-title">Waktu Pembentukan (Gelation Time):</div>
+                        <div class="property-value" id="gelation-time">-</div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="property-title">Transparansi:</div>
+                        <div class="property-bar">
+                            <div class="property-fill" id="transparency-bar" style="background-color: #3498db;"></div>
+                        </div>
+                        <div class="property-value" id="transparency-value">-</div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="property-title">Elastisitas:</div>
+                        <div class="property-bar">
+                            <div class="property-fill" id="elasticity-bar" style="background-color: #2ecc71;"></div>
+                        </div>
+                        <div class="property-value" id="elasticity-value">-</div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="property-title">Kekuatan Mekanik:</div>
+                        <div class="property-bar">
+                            <div class="property-fill" id="strength-bar" style="background-color: #e74c3c;"></div>
+                        </div>
+                        <div class="property-value" id="strength-value">-</div>
+                    </div>
+                    
+                    <div class="property">
+                        <div class="property-title">Derajat Pembengkakan (Swelling Ratio):</div>
+                        <div class="property-bar">
+                            <div class="property-fill" id="swelling-bar" style="background-color: #9b59b6;"></div>
+                        </div>
+                        <div class="property-value" id="swelling-value">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="theory" class="tab-content">
+                <h2>Teori Pembentukan Hidrogel Poliakrilamida</h2>
+                
+                <h3>Prinsip Dasar</h3>
+                <p>Hidrogel poliakrilamida (PAM) adalah jaringan polimer tiga dimensi yang terbentuk dari monomer akrilamida (AM) dengan adanya crosslinker seperti N,N'-methylenebisacrylamide (MBA). Proses polimerisasi ini dapat diinisiasi menggunakan berbagai metode, salah satunya adalah fotopolimerisasi dengan iradiasi UV dan bantuan photoinitiator seperti 2,2-dimethoxy-2-phenylacetophenone (DMPA).</p>
+                
+                <h3>Mekanisme Fotopolimerisasi</h3>
+                <p>Ketika DMPA terpapar radiasi UV, senyawa ini terurai dan menghasilkan radikal bebas. Radikal bebas ini kemudian menginisiasi polimerisasi akrilamida melalui reaksi rantai adisi. MBA berfungsi sebagai crosslinker yang menghubungkan rantai polimer linear, menciptakan struktur jaringan tiga dimensi.</p>
+                
+                <h3>Faktor-faktor yang Mempengaruhi Pembentukan Hidrogel</h3>
+                <ol>
+                    <li><strong>Konsentrasi Akrilamida (AM):</strong> Mempengaruhi densitas polimer dan sifat mekanik hidrogel. Konsentrasi yang lebih tinggi menghasilkan hidrogel dengan kekuatan mekanik lebih baik tetapi mengurangi transparansi.</li>
+                    <li><strong>Konsentrasi MBA:</strong> Sebagai crosslinker, MBA menentukan derajat crosslinking. Semakin tinggi persentase MBA, semakin kaku hidrogel tetapi dapat mengurangi elastisitas jika terlalu tinggi.</li>
+                    <li><strong>Konsentrasi DMPA:</strong> Photoinitiator ini mempengaruhi kecepatan polimerisasi. Konsentrasi yang optimal diperlukan untuk pembentukan hidrogel yang efisien.</li>
+                    <li><strong>Persentase DMSO:</strong> DMSO sebagai pelarut organik dapat mempengaruhi proses polimerisasi dan sifat akhir hidrogel. DMSO membantu melarutkan komponen hidrofobik dan mempengaruhi porositas akhir.</li>
+                    <li><strong>Intensitas UV:</strong> Intensitas yang lebih tinggi mempercepat proses fotopolimerisasi tetapi bisa menyebabkan gelasi yang terlalu cepat dan ketidakseragaman.</li>
+                    <li><strong>Waktu Iradiasi:</strong> Waktu yang cukup diperlukan untuk fotopolimerisasi yang sempurna.</li>
+                </ol>
+                
+                <h3>Sifat-sifat Hidrogel</h3>
+                <ul>
+                    <li><strong>Transparansi:</strong> Dipengaruhi oleh konsentrasi polimer dan derajat crosslinking. Hidrogel dengan densitas crosslinking rendah hingga sedang umumnya lebih transparan.</li>
+                    <li><strong>Elastisitas:</strong> Kemampuan hidrogel untuk kembali ke bentuk aslinya setelah deformasi. Dipengaruhi terutama oleh densitas crosslinking.</li>
+                    <li><strong>Waktu Pembentukan (Gelation Time):</strong> Waktu yang diperlukan untuk transformasi dari larutan ke gel. Dipengaruhi oleh konsentrasi monomer, crosslinker, photoinitiator, dan intensitas UV.</li>
+                </ul>
+            </div>
+            
+            <div id="references" class="tab-content">
+                <h2>Referensi Ilmiah</h2>
+                
+                <div class="reference">
+                    <p>1. Zhang, X., Xu, Y., Zhang, X., Wu, H., Shen, J., Chen, R., ... & Xiong, Z. (2019). Progress on the layer-by-layer assembly of multilayered polymer composites: Strategy, structural control and applications. <em>Progress in Polymer Science</em>, 89, 76-107. DOI: <a href="https://doi.org/10.1016/j.progpolymsci.2018.10.002" target="_blank">10.1016/j.progpolymsci.2018.10.002</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>2. Haraguchi, K. (2007). Nanocomposite hydrogels. <em>Current Opinion in Solid State and Materials Science</em>, 11(3-4), 47-54. DOI: <a href="https://doi.org/10.1016/j.cossms.2008.05.001" target="_blank">10.1016/j.cossms.2008.05.001</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>3. Zhao, F., Yao, D., Guo, R., Deng, L., Dong, A., & Zhang, J. (2015). Composites of polymer hydrogels and nanoparticulate systems for biomedical and pharmaceutical applications. <em>Nanomaterials</em>, 5(4), 2054-2130. DOI: <a href="https://doi.org/10.3390/nano5042054" target="_blank">10.3390/nano5042054</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>4. Ahmed, E. M. (2015). Hydrogel: Preparation, characterization, and applications: A review. <em>Journal of Advanced Research</em>, 6(2), 105-121. DOI: <a href="https://doi.org/10.1016/j.jare.2013.07.006" target="_blank">10.1016/j.jare.2013.07.006</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>5. Okay, O. (2009). General properties of hydrogels. In <em>Hydrogel Sensors and Actuators</em> (pp. 1-14). Springer, Berlin, Heidelberg. DOI: <a href="https://doi.org/10.1007/978-3-540-75645-3_1" target="_blank">10.1007/978-3-540-75645-3_1</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>6. Hennink, W. E., & van Nostrum, C. F. (2012). Novel crosslinking methods to design hydrogels. <em>Advanced Drug Delivery Reviews</em>, 64, 223-236. DOI: <a href="https://doi.org/10.1016/j.addr.2012.09.009" target="_blank">10.1016/j.addr.2012.09.009</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>7. Laftah, W. A., Hashim, S., & Ibrahim, A. N. (2011). Polymer hydrogels: A review. <em>Polymer-Plastics Technology and Engineering</em>, 50(14), 1475-1486. DOI: <a href="https://doi.org/10.1080/03602559.2011.593082" target="_blank">10.1080/03602559.2011.593082</a></p>
+                </div>
+                
+                <div class="reference">
+                    <p>8. Li, Y., Huang, G., Zhang, X., Li, B., Chen, Y., Lu, T., ... & Xu, F. (2013). Magnetic hydrogels and their potential biomedical applications. <em>Advanced Functional Materials</em>, 23(6), 660-672. DOI: <a href="https://doi.org/10.1002/adfm.201201708" target="_blank">10.1002/adfm.201201708</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update displayed values
+        document.getElementById('acrylamide').addEventListener('input', function() {
+            document.getElementById('acrylamide-value').textContent = this.value + '%';
+        });
+        
+        document.getElementById('mba').addEventListener('input', function() {
+            document.getElementById('mba-value').textContent = this.value + '%';
+        });
+        
+        document.getElementById('dmpa').addEventListener('input', function() {
+            document.getElementById('dmpa-value').textContent = this.value + '%';
+        });
+        
+        document.getElementById('dmso').addEventListener('input', function() {
+            document.getElementById('dmso-value').textContent = this.value + '%';
+        });
+        
+        document.getElementById('uv-intensity').addEventListener('input', function() {
+            document.getElementById('uv-intensity-value').textContent = this.value + ' mW/cm²';
+        });
+        
+        document.getElementById('uv-time').addEventListener('input', function() {
+            document.getElementById('uv-time-value').textContent = this.value + ' min';
+        });
+        
+        // Tab functionality
+        function openTab(evt, tabName) {
+            var i, tabcontent, tabbuttons;
+            
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            tabbuttons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        // Simulation logic
+        document.getElementById('simulate-btn').addEventListener('click', function() {
+            // Get input values
+            const amConcentration = parseFloat(document.getElementById('acrylamide').value);
+            const mbaPercentage = parseFloat(document.getElementById('mba').value);
+            const dmpaPercentage = parseFloat(document.getElementById('dmpa').value);
+            const dmsoPercentage = parseFloat(document.getElementById('dmso').value);
+            const uvIntensity = parseFloat(document.getElementById('uv-intensity').value);
+            const uvTime = parseFloat(document.getElementById('uv-time').value);
+            
+            // Reset warning
+            document.getElementById('warning-message').style.display = 'none';
+            
+            // Check if hydrogel will form
+            let willFormHydrogel = true;
+            let warningMessage = "";
+            
+            // Check limiting conditions based on literature
+            if (amConcentration < 8) {
+                willFormHydrogel = false;
+                warningMessage = "Konsentrasi akrilamida terlalu rendah untuk membentuk hidrogel yang stabil.";
+            } else if (mbaPercentage < 0.2) {
+                willFormHydrogel = false;
+                warningMessage = "Konsentrasi MBA terlalu rendah untuk membentuk crosslinking yang memadai.";
+            } else if (dmpaPercentage < 0.2) {
+                willFormHydrogel = false;
+                warningMessage = "Konsentrasi photoinitiator (DMPA) terlalu rendah untuk inisiasi yang efektif.";
+            } else if (uvIntensity < 3 && uvTime < 5) {
+                willFormHydrogel = false;
+                warningMessage = "Kombinasi intensitas UV dan waktu iradiasi tidak mencukupi untuk fotopolimerisasi.";
+            } else if (dmsoPercentage > 80) {
+                willFormHydrogel = false;
+                warningMessage = "Persentase DMSO terlalu tinggi, menghambat pembentukan jaringan polimer.";
+            }
+            
+            // Animation for simulation
+            startSimulationAnimation(willFormHydrogel);
+            
+            // Calculate properties if hydrogel forms
+            if (willFormHydrogel) {
+                setTimeout(() => {
+                    // Calculate gelation time (in seconds)
+                    // Formula based on literature trends: Higher AM, MBA, DMPA, and UV intensity decrease gelation time
+                    let gelationTime = 300 - (amConcentration * 3) - (mbaPercentage * 15) - (dmpaPercentage * 20) - (uvIntensity * 5);
+                    gelationTime = Math.max(gelationTime, 10); // Minimum 10 seconds
+                    
+                    // Calculate transparency (0-100%)
+                    // Higher AM and MBA concentrations reduce transparency
+                    let transparency = 100 - (amConcentration * 1.2) - (mbaPercentage * 8);
+                    transparency = Math.max(Math.min(transparency, 100), 0);
+                    
+                    // Calculate elasticity (0-100%)
+                    // Moderate MBA gives optimal elasticity, too low or too high reduces it
+                    let elasticity = 100 - Math.abs(mbaPercentage - 1.2) * 20 - Math.abs(amConcentration - 20) * 0.8;
+                    elasticity = Math.max(Math.min(elasticity, 100), 0);
+                    
+                    // Calculate mechanical strength (0-100%)
+                    // Higher AM and MBA increase strength
+                    let strength = (amConcentration * 1.5) + (mbaPercentage * 8);
+                    strength = Math.min(strength, 100);
+                    
+                    // Calculate swelling ratio
+                    // Lower MBA and higher DMSO increase swelling
+                    let swellingRatio = 100 - (mbaPercentage * 15) + (dmsoPercentage * 0.3);
+                    swellingRatio = Math.max(Math.min(swellingRatio, 100), 0);
+                    
+                    // Update results
+                    document.getElementById('formation-status').textContent = "Terbentuk";
+                    document.getElementById('gelation-time').textContent = gelationTime.toFixed(1) + " detik";
+                    
+                    document.getElementById('transparency-value').textContent = transparency.toFixed(1) + "%";
+                    document.getElementById('transparency-bar').style.width = transparency + "%";
+                    
+                    document.getElementById('elasticity-value').textContent = elasticity.toFixed(1) + "%";
+                    document.getElementById('elasticity-bar').style.width = elasticity + "%";
+                    
+                    document.getElementById('strength-value').textContent = strength.toFixed(1) + "%";
+                    document.getElementById('strength-bar').style.width = strength + "%";
+                    
+                    document.getElementById('swelling-value').textContent = swellingRatio.toFixed(1) + "%";
+                    document.getElementById('swelling-bar').style.width = swellingRatio + "%";
+                    
+                    // Show results
+                    document.getElementById('result-section').style.display = 'block';
+                    
+                    // Update hydrogel visual
+                    const hydrogelVisual = document.getElementById('hydrogel-visual');
+                    hydrogelVisual.style.backgroundColor = `rgba(173, 216, 230, ${(transparency / 100) * 0.8 + 0.2})`;
+                    hydrogelVisual.style.boxShadow = `0 0 15px rgba(173, 216, 230, 0.7)`;
+                    
+                    // Add elastic animation to hydrogel visual based on elasticity
+                    if (elasticity > 60) {
+                        hydrogelVisual.style.animation = 'pulse 2s infinite';
+                    }
+                }, 5000); // Show results after animation
+            } else {
+                // Display warning
+                setTimeout(() => {
+                    document.getElementById('warning-message').textContent = warningMessage;
+                    document.getElementById('warning-message').style.display = 'block';
+                    
+                    // Update hydrogel status
+                    document.getElementById('formation-status').textContent = "Tidak Terbentuk";
+                    document.getElementById('gelation-time').textContent = "N/A";
+                    document.getElementById('transparency-value').textContent = "N/A";
+                    document.getElementById('elasticity-value').textContent = "N/A";
+                    document.getElementById('strength-value').textContent = "N/A";
+                    document.getElementById('swelling-value').textContent = "N/A";
+                    
+                    document.getElementById('transparency-bar').style.width = "0%";
+                    document.getElementById('elasticity-bar').style.width = "0%";
+                    document.getElementById('strength-bar').style.width = "0%";
+                    document.getElementById('swelling-bar').style.width = "0%";
+                    
+                    // Show results
+                    document.getElementById('result-section').style.display = 'block';
+                    
+                    // Update hydrogel visual
+                    const hydrogelVisual = document.getElementById('hydrogel-visual');
+                    hydrogelVisual.style.backgroundColor = 'rgba(173, 216, 230, 0)';
+                    hydrogelVisual.style.boxShadow = 'none';
+                }, 5000); // Show results after animation
+            }
+        });
+        function startSimulationAnimation(willFormHydrogel) {
+    const container = document.getElementById('animation-container');
+    const uvBeam = document.getElementById('uv-beam');
+    
+    // Clear previous elements
+    const molecules = container.querySelectorAll('.molecule');
+    molecules.forEach(mol => mol.remove());
+    
+    // Create UV beam animation
+    uvBeam.style.height = '0';
+    setTimeout(() => {
+        uvBeam.style.height = '300px';
+    }, 100);
+    
+    // Create molecules
+    const amConcentration = parseInt(document.getElementById('acrylamide').value);
+    const mbaPercentage = parseFloat(document.getElementById('mba').value);
+    const dmpaPercentage = parseFloat(document.getElementById('dmpa').value);
+    
+    // Number of molecules based on concentration
+    const amCount = amConcentration;
+    const mbaCount = Math.round(amCount * mbaPercentage / 100) * 3;
+    const dmpaCount = Math.round(amCount * dmpaPercentage / 100) * 2;
+    
+    // Create AM molecules
+    for (let i = 0; i < amCount; i++) {
+        createMolecule('acrylamide', container);
+    }
+    
+    // Create MBA molecules
+    for (let i = 0; i < mbaCount; i++) {
+        createMolecule('mba', container);
+    }
+    
+    // Create DMPA molecules
+    for (let i = 0; i < dmpaCount; i++) {
+        createMolecule('dmpa', container);
+    }
+    
+    // Animate polymerization
+    setTimeout(() => {
+        if (willFormHydrogel) {
+            // Move molecules to center to form gel
+            const molecules = container.querySelectorAll('.molecule');
+            molecules.forEach(mol => {
+                const centerX = container.offsetWidth / 2 - mol.offsetWidth / 2;
+                const centerY = container.offsetHeight / 2 - mol.offsetHeight / 2;
+                const randomOffset = (Math.random() - 0.5) * 100;
+                mol.style.left = (centerX + randomOffset) + 'px';
+                mol.style.top = (centerY + randomOffset) + 'px';
+                mol.style.opacity = '0.7';
+            });
+        } else {
+            // Move molecules randomly without forming pattern
+            const molecules = container.querySelectorAll('.molecule');
+            molecules.forEach(mol => {
+                const randomX = Math.random() * container.offsetWidth;
+                const randomY = Math.random() * container.offsetHeight;
+                mol.style.left = randomX + 'px';
+                mol.style.top = randomY + 'px';
+                mol.style.opacity = '0.3';
+            });
+        }
+    }, 2000);
+    
+    // End animation
+    setTimeout(() => {
+        uvBeam.style.height = '0';
+    }, 4500);
+}
+
+function createMolecule(type, container) {
+    const molecule = document.createElement('div');
+    molecule.className = `molecule ${type}`;
+    
+    // Random position
+    const randomX = Math.random() * container.offsetWidth;
+    const randomY = Math.random() * container.offsetHeight;
+    
+    molecule.style.left = randomX + 'px';
+    molecule.style.top = randomY + 'px';
+    
+    container.appendChild(molecule);
+    
+    // Add random movement
+    animateMolecule(molecule, container);
+}
+
+function animateMolecule(molecule, container) {
+    const speed = 0.5 + Math.random() * 1;
+    let directionX = Math.random() > 0.5 ? 1 : -1;
+    let directionY = Math.random() > 0.5 ? 1 : -1;
+    
+    function move() {
+        const currentLeft = parseFloat(molecule.style.left);
+        const currentTop = parseFloat(molecule.style.top);
+        
+        // Bounce off walls
+        if (currentLeft <= 0 || currentLeft >= container.offsetWidth - molecule.offsetWidth) {
+            directionX *= -1;
+        }
+        
+        if (currentTop <= 0 || currentTop >= container.offsetHeight - molecule.offsetHeight) {
+            directionY *= -1;
+        }
+        
+        // Move molecule
+        molecule.style.left = (currentLeft + speed * directionX) + 'px';
+        molecule.style.top = (currentTop + speed * directionY) + 'px';
+        
+        // Continue animation if not stopped
+        if (!molecule.dataset.stopAnimation) {
+            requestAnimationFrame(move);
+        }
+    }
+    
+    requestAnimationFrame(move);
+}
+
+// Add CSS animation for elastic hydrogel
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
